@@ -3,6 +3,8 @@ import { Configuration, OpenAIApi } from "openai";
 export async function chat(req, res) {
   const { question } = req.body;
 
+  if (!question || question === undefined)
+    throw new Error("Bạn phải nhập câu hỏi");
   const rules = ["sex", "18+"];
   question.split(" ").forEach((word) => {
     if (rules.includes(word)) throw new Error("Yêu cầu chứa từ ngữ vi phạm");
