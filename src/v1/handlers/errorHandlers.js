@@ -11,7 +11,6 @@ export function mongoseErrors(err, req, res, next) {
   message = message.substr(0, message.length - 2);
 
   res.json({
-    status: err.status || 400,
     success: false,
     message,
   });
@@ -22,7 +21,6 @@ export function developmentErrors(err, req, res, next) {
   err.stack = err.stack || "";
 
   res.json({
-    status: err.status || 500,
     success: false,
     message: err.message,
     stack: err.stack,
@@ -33,7 +31,7 @@ export function developmentErrors(err, req, res, next) {
 export function productionErrors(err, req, res, next) {
   res.json({
     success: false,
-    message: "Internal Server Error",
+    message: err.message,
   });
 }
 
