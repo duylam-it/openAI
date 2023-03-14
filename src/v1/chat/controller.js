@@ -13,7 +13,7 @@ export async function chat(req, res) {
     apiKey: process.env.OPENAI_API_KEY,
   });
   const openai = new OpenAIApi(configuration);
-  const completion = await openai.createChatCompletion({
+  const completion = await openai.createCompletion({
     model: "gpt-3.5-turbo",
     messages: [{ role: "user", content: question }],
   });
