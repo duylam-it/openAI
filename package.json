@@ -8,7 +8,7 @@
   "author": "DuyLam, GDVN",
   "license": "MIT",
   "scripts": {
-    "start": "node app.js"
+    "start": "nodemon app.js"
   },
   "dependencies": {
     "cookie-parser": "^1.4.6",
