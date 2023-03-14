@@ -1,22 +1,50 @@
 import { Configuration, OpenAIApi } from "openai";
+import { OPENAI_API_KEY as apiKey } from "../config/variable.js";
+import Chat from "./model.js";
 
+const rules = ["sex", "18+"];
+const role = ["user", "system, assistant"];
+
+const configuration = new Configuration({
+  apiKey,
+});
+const openai = new OpenAIApi(configuration);
+
+// ==> CHAT <==
 export async function chat(req, res) {
-  const { question } = req.body;
+  const { questions } = req.body;
+  if (typeof questions !== "object")
+    throw new Error("Yêu cầu không đúng định dạng");
 
-  if (!question || question === undefined)
-    throw new Error("Bạn phải nhập câu hỏi");
-  const rules = ["sex", "18+"];
-  question.split(" ").forEach((word) => {
-    if (rules.includes(word)) throw new Error("Yêu cầu chứa từ ngữ vi phạm");
+  questions.forEach((question) => {
+    if (
+      !question.role ||
+      question.role === undefined ||
+      !question.content ||
+      question.content === undefined
+    )
+      throw new Error("Yêu cầu không đúng định dạng");
+    if (!role.includes(question.role))
+      throw new Error("Yêu cầu không đúng định dạng");
+
+    question.content.split(" ").forEach((word) => {
+      if (rules.includes(word)) throw new Error("Yêu cầu chứa từ ngữ vi phạm");
+    });
   });
-  const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
+
+  // if (!configuration.apiKeys) throw new Error("Không tìm thấy OpenAI API Key");
+  console.log(apiKey);
+
+  const completion = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo-0301",
+    messages: questions,
   });
-  const openai = new OpenAIApi(configuration);
-  const completion = await openai.createCompletion({
-    model: "gpt-3.5-turbo",
-    messages: [{ role: "user", content: question }],
-  });
+
+  await new Chat({
+    reqMess: questions,
+    resMess: completion.data.choices[0].message.content,
+    ip: req.ip,
+  }).save();
 
   res.json({
     success: true,
