@@ -1,5 +1,9 @@
+import jwt from "jsonwebtoken";
 import { Configuration, OpenAIApi } from "openai";
-import { OPENAI_API_KEY as apiKey } from "../config/variable.js";
+import {
+  ACCESS_TOKEN_SECRET,
+  OPENAI_API_KEY as apiKey,
+} from "../config/variable.js";
 import Chat from "./model.js";
 
 const rules = ["sex", "18+"];
@@ -53,3 +57,26 @@ export async function chat(req, res) {
     },
   });
 }
+
+export async function getToken(req, res) {
+  const { pass } = req.body;
+  if (pass !== "admin") throw new Error("Unauthorized");
+
+  res.json({
+    success: true,
+    data: {
+      token: encodedToken("GDVN", ACCESS_TOKEN_SECRET),
+    },
+  });
+}
+
+const encodedToken = (sub, secret) => {
+  return jwt.sign(
+    {
+      iss: "Duy Lam",
+      iat: new Date().getTime(),
+      sub,
+    },
+    secret
+  );
+};
