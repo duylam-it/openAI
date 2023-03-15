@@ -33,8 +33,7 @@ export async function chat(req, res) {
     });
   });
 
-  // if (!configuration.apiKeys) throw new Error("Không tìm thấy OpenAI API Key");
-  console.log(apiKey);
+  if (!configuration.apiKey) throw new Error("Không tìm thấy OpenAI API Key");
 
   const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo-0301",
@@ -42,8 +41,8 @@ export async function chat(req, res) {
   });
 
   await new Chat({
-    reqMess: questions,
-    resMess: completion.data.choices[0].message.content,
+    messReq: questions,
+    messRes: completion.data.choices[0].message.content,
     ip: req.ip,
   }).save();
 
