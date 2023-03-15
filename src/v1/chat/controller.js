@@ -3,9 +3,10 @@ import { OPENAI_API_KEY as apiKey } from "../config/variable.js";
 import Chat from "./model.js";
 
 const rules = ["sex", "18+"];
-const role = ["user", "system, assistant"];
+const role = ["user", "system", "assistant"];
 
 const configuration = new Configuration({
+  organization: "org-UIaraMXHiNGlxdPbR2DaLD7S",
   apiKey,
 });
 const openai = new OpenAIApi(configuration);
