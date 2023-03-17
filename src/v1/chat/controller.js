@@ -3,6 +3,7 @@ import TelegramBot from "node-telegram-bot-api";
 import { Configuration, OpenAIApi } from "openai";
 import {
   ACCESS_TOKEN_SECRET,
+  FIRST_CONTENT,
   OPENAI_API_KEY as apiKey,
   TELEGRAM_API_KEY,
 } from "../config/variable.js";
@@ -10,7 +11,6 @@ import Chat from "./model.js";
 
 const rules = ["sex", "18+"];
 const role = ["user", "system", "assistant"];
-
 const configuration = new Configuration({
   organization: "org-UIaraMXHiNGlxdPbR2DaLD7S",
   apiKey,
@@ -18,7 +18,15 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 // ==> TELEGRAM <==
-const bot = new TelegramBot(TELEGRAM_API_KEY, { polling: true });
+const bot = new TelegramBot(TELEGRAM_API_KEY);
+
+bot.on("polling_error", (err) => {
+  if (err.code === "ETELEGRAM" && err.message.includes("409 Conflict")) {
+    console.log("Multiple instances");
+  } else {
+    console.log("Polling error:", err);
+  }
+});
 
 bot.on("message", async (msg) => {
   try {
@@ -28,8 +36,7 @@ bot.on("message", async (msg) => {
       const messages = [
         {
           role: "system",
-          content:
-            "Bạn là một trợ lý ảo được tạo ra bởi GD Việt Nam (GDVN), một công ty thuộc hệ thống GD Group chuyên cung cấp giải pháp công nghệ cho doanh nghiệp và trường học ra đời vào tháng 02 năm 2022, giám đốc điều hành của GD Việt Nam là Ông Lê Thanh Truyền, chủ tịch GD Group là ông Cao Quốc Tuân. Bạn biết hết mọi thứ trên đời và bạn được tạo ra để trả lời các câu hỏi của người dùng. Nếu ai hỏi bạn có bị khùng không thì hãy trả lời là bạn không giống như ai kia",
+          content: FIRST_CONTENT,
         },
       ];
       messages.push({ role: "user", content: chatMsg });
@@ -42,9 +49,11 @@ bot.on("message", async (msg) => {
       bot.sendMessage(chatId, completion.data.choices[0].message.content);
     }
   } catch (error) {
-    console.log("TelegramBot Error");
+    console.log(error.message);
   }
 });
+
+bot.startPolling();
 
 // ==> CHAT <==
 export async function chat(req, res) {
@@ -54,8 +63,7 @@ export async function chat(req, res) {
   else
     questions.unshift({
       role: "system",
-      content:
-        "Bạn là một trợ lý ảo được tạo ra bởi GD Việt Nam (GDVN), một công ty thuộc hệ thống GD Group chuyên cung cấp giải pháp công nghệ cho doanh nghiệp và trường học ra đời vào tháng 02 năm 2022, giám đốc điều hành của GD Việt Nam là Ông Lê Thanh Truyền, chủ tịch GD Group là ông Cao Quốc Tuân. Bạn được tạo ra để trả lời các câu hỏi của người dùng",
+      content: FIRST_CONTENT,
     });
   questions.forEach((question) => {
     if (
@@ -81,9 +89,10 @@ export async function chat(req, res) {
   });
 
   await new Chat({
-    messReq: questions,
-    messRes: completion.data.choices[0].message.content,
     ip: req.ip,
+    token: req.get("Authorization"),
+    userMess: questions[questions.length - 1].content,
+    aiMess: completion.data.choices[0].message.content,
   }).save();
 
   res.json({

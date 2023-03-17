@@ -11,7 +11,7 @@ passport.use(
     },
     (payload, done) => {
       if (payload.sub !== "GDVN") return done(null, false);
-      else return done(null, true);
+      else return done(null, payload);
     }
   )
 );

@@ -4,9 +4,10 @@ export default mongoose.model(
   "Chat",
   new mongoose.Schema(
     {
-      messReq: { type: [Object], required: "messReq is required" },
-      messRes: { type: "String", required: "messRes is required" },
       ip: { type: "String", required: "ip is required" },
+      token: { type: "String", required: "token is required" },
+      userMess: { type: "String", required: "messReq is required" },
+      aiMess: { type: "String", required: "messRes is required" },
     },
     { timestamps: true }
   )
