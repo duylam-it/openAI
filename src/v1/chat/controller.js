@@ -22,9 +22,9 @@ const bot = new TelegramBot(TELEGRAM_API_KEY, { polling: true });
 
 bot.on("message", async (msg) => {
   try {
-    if (msg.text.includes("Bot:")) {
+    if (msg.text.toUpperCase().includes("BOT:")) {
       const chatId = msg.chat.id;
-      const chatMsg = msg.text.slice(4);
+      const chatMsg = msg.text.slice(4).trim();
       const messages = [
         {
           role: "system",
