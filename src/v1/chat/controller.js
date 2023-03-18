@@ -35,6 +35,7 @@ bot.command("test", (ctx) => {
 });
 
 bot.command("ai", async (ctx) => {
+  console.log("Command (/ai): ", ctx.update.message.text.slice(4).trim());
   temp.push({
     role: "user",
     content: ctx.update.message.text.slice(4).trim(),
