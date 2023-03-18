@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
-import TelegramBot from "node-telegram-bot-api";
 import { Configuration, OpenAIApi } from "openai";
+import { Telegraf } from "telegraf";
+import { message } from "telegraf/filters";
 import {
   ACCESS_TOKEN_SECRET,
   FIRST_CONTENT,
@@ -18,87 +19,64 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 // ==> TELEGRAM <==
-const bot = new TelegramBot(TELEGRAM_API_KEY);
+const bot = new Telegraf(TELEGRAM_API_KEY);
+const temp = [];
 
-bot.on("polling_error", (err) => {
-  if (err.code === "ETELEGRAM" && err.message.includes("409 Conflict")) {
-    console.log("Multiple instances");
-  } else {
-    console.log("Polling error:", err);
-  }
+bot.start((ctx) =>
+  ctx.reply("Chào bạn, tôi là trợ lý ảo của GD Việt Nam. Bạn cần giúp gì ạ?")
+);
+
+bot.help((ctx) =>
+  ctx.reply("Chào bạn, tôi là trợ lý ảo của GD Việt Nam. Bạn cần giúp gì ạ?")
+);
+
+bot.command("test", (ctx) => {
+  ctx.reply("Tao vẫn ở đây chờ m hỏi");
 });
 
-bot.on("message", async (msg) => {
-  try {
-    if (msg.text.toUpperCase().includes("BOT:")) {
-      const chatId = msg.chat.id;
-      const chatMsg = msg.text.slice(4).trim();
-      const messages = [
-        {
-          role: "system",
-          content: FIRST_CONTENT,
-        },
-      ];
-      messages.push({ role: "user", content: chatMsg });
+bot.command("ai", async (ctx) => {
+  temp.push({
+    role: "user",
+    content: ctx.update.message.text.slice(4).trim(),
+  });
+  const message = await callAI(temp);
+  temp.push({
+    role: "assistant",
+    content: message,
+  });
 
-      const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo-0301",
-        messages,
-      });
-
-      bot.sendMessage(chatId, completion.data.choices[0].message.content);
-    }
-  } catch (error) {
-    console.log(error.message);
-  }
+  ctx.reply(message);
 });
 
-bot.startPolling();
+bot.on(message("sticker"), (ctx) =>
+  ctx.sendSticker(
+    "CAACAgIAAxkBAAM8ZBUd9qEcTNjmMtu2zDqZlUPc5rIAAlQAA0G1Vgxqt_jHCI0B-i8E"
+  )
+);
+
+bot.launch();
+
+// Enable graceful stop
+process.once("SIGINT", () => bot.stop("SIGINT"));
+process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
 // ==> CHAT <==
 export async function chat(req, res) {
   const { questions } = req.body;
-  if (typeof questions !== "object")
-    throw new Error("Yêu cầu không đúng định dạng");
-  else
-    questions.unshift({
-      role: "system",
-      content: FIRST_CONTENT,
-    });
-  questions.forEach((question) => {
-    if (
-      !question.role ||
-      question.role === undefined ||
-      !question.content ||
-      question.content === undefined
-    )
-      throw new Error("Yêu cầu không đúng định dạng");
-    if (!role.includes(question.role))
-      throw new Error("Yêu cầu không đúng định dạng");
 
-    question.content.split(" ").forEach((word) => {
-      if (rules.includes(word)) throw new Error("Yêu cầu chứa từ ngữ vi phạm");
-    });
-  });
-
-  if (!configuration.apiKey) throw new Error("Không tìm thấy OpenAI API Key");
-
-  const completion = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo-0301",
-    messages: questions,
-  });
+  const message = await callAI(questions);
 
   await new Chat({
     ip: req.ip,
     token: req.get("Authorization"),
     userMess: questions[questions.length - 1].content,
-    aiMess: completion.data.choices[0].message.content,
+    aiMess: message,
   }).save();
 
   res.json({
     success: true,
     data: {
-      message: completion.data.choices[0].message.content,
+      message,
     },
   });
 }
@@ -114,6 +92,45 @@ export async function getToken(req, res) {
     },
   });
 }
+
+const callAI = async (messages) => {
+  try {
+    if (!configuration.apiKey) throw new Error("Không tìm thấy OpenAI API Key");
+
+    if (typeof messages !== "object")
+      throw new Error("Yêu cầu không đúng định dạng");
+    messages.forEach((message) => {
+      if (
+        !message.role ||
+        message.role === undefined ||
+        !message.content ||
+        message.content === undefined
+      )
+        throw new Error("Yêu cầu không đúng định dạng");
+      if (!role.includes(message.role))
+        throw new Error("Yêu cầu không đúng định dạng");
+
+      message.content.split(" ").forEach((word) => {
+        if (rules.includes(word))
+          throw new Error("Yêu cầu chứa từ ngữ vi phạm");
+      });
+    });
+
+    messages.unshift({
+      role: "system",
+      content: FIRST_CONTENT,
+    });
+
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo-0301",
+      messages,
+    });
+    return completion.data.choices[0].message.content;
+  } catch (error) {
+    console.log(error);
+    return "AI Server: Đã xảy ra lỗi, vui lòng liên hệ GD Việt Nam";
+  }
+};
 
 const encodedToken = (sub, secret) => {
   return jwt.sign(
