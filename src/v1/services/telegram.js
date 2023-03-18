@@ -1,3 +1,5 @@
+import { Telegraf } from "telegraf";
+import { message } from "telegraf/filters";
 import { TELEGRAM_API_KEY } from "../config/variable.js";
 import { callAI } from "./openai.js";
 
