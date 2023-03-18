@@ -6,6 +6,7 @@ import log from "morgan";
 import cron from "node-cron";
 import db from "./src/v1/config/db.js";
 import routes from "./src/v1/routes.js";
+import telegram from "./src/v1/services/telegram.js";
 
 const app = express();
 const version = process.env.VERSION;
@@ -36,6 +37,9 @@ routes(app);
 
 // DB Connect
 db.connect();
+
+// Telegram Connect
+telegram.connect();
 
 // Cron
 cron.schedule(
