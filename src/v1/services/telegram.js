@@ -46,7 +46,7 @@ const connect = () => {
 
       ctx.reply(message);
     } catch (e) {
-      console.log(e.message)
+      console.log(e)
     }
   });
 
