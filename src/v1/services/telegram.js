@@ -34,6 +34,7 @@ const connect = () => {
       let content = "";
       if(ctx.update.message.text.slice(3).trim() === "") content = "Xin chào";
       else content = ctx.update.message.text.slice(3).trim();
+      if(temp.indexOf({role: "user", content}) !== -1) temp.splice(temp.indexOf({role: "user", content}), 1);
       temp.push({
         role: "user",
         content,
