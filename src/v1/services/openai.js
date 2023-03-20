@@ -11,6 +11,7 @@ const openai = new OpenAIApi(configuration);
 
 export const callAI = async (messages) => {
   try {
+    console.log(messages);
     if (!configuration.apiKey) throw new Error("Không tìm thấy OpenAI API Key");
 
     if (typeof messages !== "object")
@@ -30,11 +31,6 @@ export const callAI = async (messages) => {
         if (rules.includes(word))
           throw new Error("Yêu cầu chứa từ ngữ vi phạm");
       });
-    });
-
-    messages.unshift({
-      role: "system",
-      content: FIRST_CONTENT,
     });
 
     const completion = await openai.createChatCompletion({
