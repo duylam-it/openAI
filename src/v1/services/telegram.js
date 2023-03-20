@@ -1,10 +1,13 @@
 import { Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
-import { TELEGRAM_API_KEY } from "../config/variable.js";
+import { FIRST_CONTENT, TELEGRAM_API_KEY } from "../config/variable.js";
 import { callAI } from "./openai.js";
 
 const bot = new Telegraf(TELEGRAM_API_KEY);
-const temp = [];
+const temp = [{
+  role: "system",
+  content: FIRST_CONTENT,
+}];
 
 const connect = () => {
   bot.start((ctx) =>
@@ -21,7 +24,12 @@ const connect = () => {
 
   bot.command("ai", async (ctx) => {
     try {
-      if(temp.lenght > 100) temp = [];
+      if(temp.lenght > 100) temp = [
+        {
+          role: "system",
+          content: FIRST_CONTENT,
+        }
+      ];
       console.log("Command (/ai): ", ctx.update.message.text.slice(3).trim());
       temp.push({
         role: "user",
