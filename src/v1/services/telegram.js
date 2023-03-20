@@ -20,18 +20,23 @@ const connect = () => {
   });
 
   bot.command("ai", async (ctx) => {
-    console.log("Command (/ai): ", ctx.update.message.text.slice(4).trim());
-    temp.push({
-      role: "user",
-      content: ctx.update.message.text.slice(4).trim(),
-    });
-    const message = await callAI(temp);
-    temp.push({
-      role: "assistant",
-      content: message,
-    });
+    try {
+      if(temp.lenght > 100) temp = [];
+      console.log("Command (/ai): ", ctx.update.message.text.slice(3).trim());
+      temp.push({
+        role: "user",
+        content: ctx.update.message.text.slice(3).trim(),
+      });
+      const message = await callAI(temp);
+      temp.push({
+        role: "assistant",
+        content: message,
+      });
 
-    ctx.reply(message);
+      ctx.reply(message);
+    } catch (e) {
+      console.log(e.message)
+    }
   });
 
   bot.on(message("sticker"), (ctx) =>
