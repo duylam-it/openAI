@@ -4,7 +4,7 @@ import { FIRST_CONTENT, TELEGRAM_API_KEY } from "../config/variable.js";
 import { callAI } from "./openai.js";
 
 const bot = new Telegraf(TELEGRAM_API_KEY);
-const temp = [{
+let temp = [{
   role: "system",
   content: FIRST_CONTENT,
 }];
@@ -31,10 +31,12 @@ const connect = () => {
         }
       ];
       console.log("Command (/ai): ", ctx.update.message.text.slice(3).trim());
-      if(ctx.update.message.text.slice(3).trim() = "") ctx.update.message.text = "Xin chào";
+      let content = "";
+      if(ctx.update.message.text.slice(3).trim() = "") content = "Xin chào";
+      else content = ctx.update.message.text.slice(3).trim();
       temp.push({
         role: "user",
-        content: ctx.update.message.text.slice(3).trim(),
+        content,
       });
       const message = await callAI(temp);
       temp.push({
