@@ -18,9 +18,7 @@ export const callAI = async (messages) => {
       throw new Error("Yêu cầu không đúng định dạng");
     messages.forEach((message) => {
       if (
-        !message.role ||
         message.role === undefined ||
-        !message.content ||
         message.content === undefined
       )
         throw new Error("Yêu cầu không đúng định dạng");
