@@ -37,8 +37,7 @@ export const callAI = async (messages) => {
     });
     return completion.data.choices[0].message.content;
   } catch (error) {
-    console.log(messages);
     console.log(error);
-    return "AI Server: Đã xảy ra lỗi, vui lòng liên hệ GD Việt Nam";
+    return "Debug: " + error.message;
   }
 };
