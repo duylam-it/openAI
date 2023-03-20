@@ -32,7 +32,7 @@ const connect = () => {
       ];
       console.log("Command (/ai): ", ctx.update.message.text.slice(3).trim());
       let content = "";
-      if(ctx.update.message.text.slice(3).trim() = "") content = "Xin chào";
+      if(ctx.update.message.text.slice(3).trim() === "") content = "Xin chào";
       else content = ctx.update.message.text.slice(3).trim();
       temp.push({
         role: "user",
