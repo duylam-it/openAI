@@ -31,6 +31,7 @@ const connect = () => {
         }
       ];
       console.log("Command (/ai): ", ctx.update.message.text.slice(3).trim());
+      if(ctx.update.message.text.slice(3).trim() = "") ctx.update.message.text = "Xin chào";
       temp.push({
         role: "user",
         content: ctx.update.message.text.slice(3).trim(),
