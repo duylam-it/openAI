@@ -1,10 +1,13 @@
 import { Configuration, OpenAIApi } from "openai";
-import { OPENAI_API_KEY as apiKey } from "../config/variable.js";
+import {
+  OPENAI_API_KEY as apiKey,
+  OPENAI_ORGANIZATION_ID,
+} from "../config/variable.js";
 
 const rules = ["sex", "18+"];
 const role = ["user", "system", "assistant"];
 const configuration = new Configuration({
-  organization: "org-UIaraMXHiNGlxdPbR2DaLD7S",
+  organization: OPENAI_ORGANIZATION_ID,
   apiKey,
 });
 const openai = new OpenAIApi(configuration);
