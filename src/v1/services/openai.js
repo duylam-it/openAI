@@ -23,6 +23,7 @@ export const callAI = async (messages) => {
         throw new Error("Yêu cầu không đúng định dạng");
     });
 
+    console.log(messages[messages.lenght - 1]);
     messages[messages.lenght - 1].content.split(" ").forEach((word) => {
       if (rules.includes(word)) throw new Error("Yêu cầu chứa từ ngữ vi phạm");
     });
