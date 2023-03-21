@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi } from "openai";
-import { FIRST_CONTENT, OPENAI_API_KEY as apiKey } from "../config/variable.js";
+import { OPENAI_API_KEY as apiKey } from "../config/variable.js";
 
 const rules = ["sex", "18+"];
 const role = ["user", "system", "assistant"];
@@ -17,18 +17,14 @@ export const callAI = async (messages) => {
     if (typeof messages !== "object")
       throw new Error("Yêu cầu không đúng định dạng");
     messages.forEach((message) => {
-      if (
-        message.role === undefined ||
-        message.content === undefined
-      )
+      if (message.role === undefined || message.content === undefined)
         throw new Error("Yêu cầu không đúng định dạng");
       if (!role.includes(message.role))
         throw new Error("Yêu cầu không đúng định dạng");
+    });
 
-      message.content.split(" ").forEach((word) => {
-        if (rules.includes(word))
-          throw new Error("Yêu cầu chứa từ ngữ vi phạm");
-      });
+    messages[messages.lenght - 1].content.split(" ").forEach((word) => {
+      if (rules.includes(word)) throw new Error("Yêu cầu chứa từ ngữ vi phạm");
     });
 
     const completion = await openai.createChatCompletion({

@@ -3,11 +3,13 @@ import { message } from "telegraf/filters";
 import { FIRST_CONTENT, TELEGRAM_API_KEY } from "../config/variable.js";
 import { callAI } from "./openai.js";
 
-const bot = new Telegraf(TELEGRAM_API_KEY, {handlerTimeout: 9_000_000});
-let temp = [{
-  role: "system",
-  content: FIRST_CONTENT,
-}];
+const bot = new Telegraf(TELEGRAM_API_KEY, { handlerTimeout: 9_000_000 });
+let temp = [
+  {
+    role: "system",
+    content: FIRST_CONTENT,
+  },
+];
 
 const connect = () => {
   bot.start((ctx) =>
@@ -22,16 +24,18 @@ const connect = () => {
     ctx.reply("Tao vẫn ở đây chờ m hỏi");
   });
 
-  bot.command("ai", async (ctx) => {
-    if(temp.lenght > 100) temp = [
-        {
-          role: "system",
-          content: FIRST_CONTENT,
-        }
-      ];
+  bot
+    .command("ai", async (ctx) => {
+      if (temp.lenght > 100)
+        temp = [
+          {
+            role: "system",
+            content: FIRST_CONTENT,
+          },
+        ];
       console.log("Command (/ai): ", ctx.update.message.text.slice(3).trim());
       let content = "";
-      if(ctx.update.message.text.slice(3).trim() === "") content = "Xin chào";
+      if (ctx.update.message.text.slice(3).trim() === "") content = "Xin chào";
       else content = ctx.update.message.text.slice(3).trim();
       temp.push({
         role: "user",
@@ -44,7 +48,8 @@ const connect = () => {
       });
 
       ctx.reply(message);
-  }).catch((e) => console.log(e));
+    })
+    .catch((e) => console.log(e));
 
   bot.on(message("sticker"), (ctx) =>
     ctx.sendSticker(
